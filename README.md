@@ -7,7 +7,7 @@ This project was developed as part of the **Celebal Internship Program** and use
 ---
 ## 🚀 Live Demo
 
-🌐 **Streamlit App:** [Click Here to Launch]()
+🌐 **Streamlit App:** [Click Here to Launch](https://customervalueprediction.streamlit.app/)
 
 ---
 
