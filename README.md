@@ -49,20 +49,18 @@ This project was developed as part of the **Celebal Internship Program** and use
 ## 📂 Project Structure
 
 customer-lifetime-value-prediction/<br>
-│
-|── app.py<br>
-├── requirements.txt<br>
-├── README.md<br>
-│
-├── data/<br>
-│   ├── online_retail_II.xlsx <br>
-│   └── features.csv<br>
-│
-├── models/<br>
-│   └── xgb_clv_model.pkl<br>
-│
-└── utils/<br>
-    └── helpers.py<br>
+├── app.py                      <br>
+├── CLV_Prediction.ipynb        <br>
+├── EDA.ipynb                   <br>
+├── README.md                   <br>
+├── requirements.txt            <br>
+├──data/                       <br>
+│&emsp; &emsp;├── online_retail_II.xlsx   <br>
+│&emsp; &emsp;├── retail_cleaned_data.csv <br>
+│&emsp; &emsp;└── features.csv            <br>
+└── models/                     <br>
+&emsp; &emsp;├── clv_model_3m.pkl        <br>
+&emsp; &emsp;└── clv_model_6m.pkl        <br>
 
 
 
