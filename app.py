@@ -8,11 +8,16 @@ df_full = pd.read_csv("data/retail_cleaned_data.csv")
 model_3m = joblib.load("models/clv_model_3m.pkl")
 model_6m = joblib.load("models/clv_model_6m.pkl")
 
+def classify_customer_type(row):
+    if row["Frequency"] >= 10 and row["AvgQuantity"] >= 10 and row["AvgUnitPrice"] < 5:
+        return "Wholesaler"
+    else:
+        return "Retail"
 
 st.set_page_config(page_title="Customer CLV Dashboard", layout="wide")
 st.title("🛍️ Customer Lifetime Value Prediction Dashboard")
 
-# Sidebar - Customer Selector
+#Customer Selector
 customer_ids = sorted(features["Customer ID"].unique())
 selected_id = st.sidebar.selectbox("Select a Customer ID", customer_ids)
 
@@ -24,8 +29,33 @@ X_input = cust_row[[
     "TotalQuantity", "AvgUnitPrice", "AvgOrderValue", "AvgQuantity"
 ]].values.reshape(1, -1)
 
+customer_type = classify_customer_type(cust_row)        #Customer Type
+
+features["CustomerType"] = features.apply(classify_customer_type, axis=1)
+
+# Count summary
+type_counts = features["CustomerType"].value_counts()
+total_customers = len(features)
+type_percent = (type_counts / total_customers * 100).round(2)
+
+
+
+
+st.sidebar.markdown("### 📊 Customer Type Summary")
+
+st.sidebar.write(f"**Total Customers:** {total_customers}")
+st.sidebar.write(f"**Wholesalers:** {type_counts['Wholesaler']} ({type_percent['Wholesaler']}%)")
+st.sidebar.write(f"**Retail:** {type_counts['Retail']} ({type_percent['Retail']}%)")
+
+fig_type, ax_type = plt.subplots(figsize=(3, 3))
+colors = ['#66b3ff', '#99ff99']
+ax_type.pie(type_percent, labels=type_percent.index, autopct='%1.1f%%', startangle=90, colors=colors)
+ax_type.axis('equal')
+st.sidebar.pyplot(fig_type)
+
 clv_3m = model_3m.predict(X_input)[0]
 clv_6m = model_6m.predict(X_input)[0]
+
 
 # Section 1: Predictions
 st.subheader("📈 Future Value Prediction")
@@ -34,6 +64,8 @@ col1, col2, col3 = st.columns(3)
 col1.metric("Predicted Spend in 3 Months", f"£{clv_3m:.2f}")
 col2.metric("Predicted Spend in 6 Months", f"£{clv_6m:.2f}")
 col3.metric("Customer Country", cust_row["Country"])
+st.metric("Customer Type", "🏢 Wholesaler" if customer_type == "Wholesaler" else "🛍️ Retail") 
+
 
 # Section 2: Past Purchase Summary
 st.subheader("🧾 Past Purchase Summary")
@@ -77,7 +109,7 @@ with col1:
 
     # Top products
     top_products = cust_orders.groupby("Description")["TotalPrice"].sum().nlargest(10)
-    fig2, ax2 = plt.subplots(figsize=(5, 3))
+    fig2, ax2 = plt.subplots(figsize=(7, 6))
     top_products.plot(kind="barh", ax=ax2, color='darkgreen')
     ax2.set_title("Top Products", fontsize=10)
     ax2.set_xlabel("Spend (£)", fontsize=8)
